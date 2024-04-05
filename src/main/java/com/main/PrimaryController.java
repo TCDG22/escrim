@@ -1,9 +1,18 @@
 package com.main;
 
 import java.io.IOException;
+
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
 
 public class PrimaryController {
+
+    @FXML
+    private VBox VBox;
+
+    @FXML
+    private Button primaryButton;
 
     @FXML
     private void switchToSecondary() throws IOException {
