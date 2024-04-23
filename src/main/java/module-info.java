@@ -4,6 +4,7 @@ module com.main {
     requires java.sql;
     requires com.h2database;
     requires java.naming;
+    requires javafx.base;
     opens com.main to javafx.fxml;
     opens com.DAO to javafx.base;
     exports com.main;

@@ -44,16 +44,38 @@ public class CaisseDAO {
 
     public void addCaisse(Caisse caisse) {
         String query = "INSERT INTO Caisse (Affectataire, Module, Condition, Secteur, Nature, Désignation, Précision, Dimension, Volume, Poids, Observation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, caisse.getAffectataire());
-            // Continuer pour tous les paramètres...
-            ps.executeUpdate();
+            ps.setString(2, caisse.getModule());
+            ps.setString(3, caisse.getCondition());
+            ps.setString(4, caisse.getSecteur());
+            ps.setString(5, caisse.getNature());
+            ps.setString(6, caisse.getDesignation());
+            ps.setString(7, caisse.getPrecision());
+            ps.setString(8, caisse.getDimension());
+            ps.setFloat(9, caisse.getVolume());
+            ps.setInt(10, caisse.getPoids());
+            ps.setString(11, caisse.getObservation());
+            
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating caisse failed, no rows affected.");
+            }
+
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    caisse.setIdCaisse(generatedKeys.getInt(1)); // Assuming you have a setter for ID if you need to use it later
+                } else {
+                    throw new SQLException("Creating caisse failed, no ID obtained.");
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+        
 
-    public Caisse getCaisse(int id) {
+    public Caisse getCaisseById(int id) {
         Caisse caisse = null;
         String query = "SELECT * FROM Caisse WHERE Id_caisse = ?";
         try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(query)) {
@@ -66,18 +88,34 @@ public class CaisseDAO {
         }
         return caisse;
     }
-    
-    // public void updateCaisse(Caisse caisse) {
-    //     String query = "UPDATE Caisse SET Affectataire=?, Module=?, ... WHERE Id_caisse=?";
-    //     try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(query)) {
-    //         ps.setString(1, caisse.getAffectataire());
-    //         // Continuer pour tous les champs...
-    //         ps.setInt(/* dernier indice */, caisse.getIdCaisse());
-    //         ps.executeUpdate();
-    //     } catch (SQLException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
+
+    public void updateCaisseObservation(int idCaisse, String newObservation) {
+        String query = "UPDATE Caisse SET Observation = ? WHERE Id_caisse = ?";
+        try (PreparedStatement ps = dbConnection.prepareStatement(query)) {
+            ps.setString(1, newObservation);
+            ps.setInt(2, idCaisse);
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Updating caisse failed, no rows affected.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateCaisseSecteur(int idCaisse, String newSecteur) {
+        String query = "UPDATE Caisse SET Secteur = ? WHERE Id_caisse = ?";
+        try (PreparedStatement ps = dbConnection.prepareStatement(query)) {
+            ps.setString(1, newSecteur);
+            ps.setInt(2, idCaisse);
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Updating caisse failed, no rows affected.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     
     public void deleteCaisse(int id) {
         String query = "DELETE FROM Caisse WHERE Id_caisse = ?";

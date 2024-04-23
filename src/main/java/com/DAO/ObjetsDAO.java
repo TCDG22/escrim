@@ -34,18 +34,20 @@ public class ObjetsDAO {
         return objetsList;
     }
     
-    public void addObjet(Objets objet) {
-        String query = "INSERT INTO Objets (Designation, Quantite, DLU, Caisse_id) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(query)) {
-            ps.setString(1, objet.getDesignation());
-            // Continuer pour tous les paramètres...
+    public void addEquipement(Objets equipement) {
+        String query = "INSERT INTO Objets (designation, dlu, caisse_Id, quantite) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = dbConnection.prepareStatement(query)) {
+            ps.setString(1, equipement.getDesignation());
+            ps.setDate(2, new java.sql.Date(equipement.getDlu().getTime()));
+            ps.setInt(3, equipement.getCaisseId());
+            ps.setInt(4, equipement.getQuantite());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
     
-    public Objets getObjet(int id) {
+    public Objets getObjetByID(int id) {
         Objets objet = null;
         String query = "SELECT * FROM Objets WHERE Objet_id = ?";
         try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(query)) {
@@ -59,18 +61,20 @@ public class ObjetsDAO {
         }
         return objet;
     }
-    
-    // public void updateObjet(Objets objet) {
-    //     String query = "UPDATE Objets SET Designation=?, Quantite=?, ... WHERE Objet_id=?";
-    //     try (PreparedStatement ps = DBConnection.getConnection().prepareStatement(query)) {
-    //         ps.setString(1, objet.getDesignation());
-    //         // Continuer pour tous les champs...
-    //         ps.setInt(/* dernier indice */, objet.getObjetId());
-    //         ps.executeUpdate();
-    //     } catch (SQLException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
+
+    public void updateEquipementQuantite(int id, int newQuantite) {
+        String query = "UPDATE Objets SET quantite = ? WHERE objet_id = ?";
+        try (PreparedStatement ps = dbConnection.prepareStatement(query)) {
+            ps.setInt(1, newQuantite);
+            ps.setInt(2, id);
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Updating equipment failed, no rows affected.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     
     public void deleteObjet(int id) {
         String query = "DELETE FROM Objets WHERE Objet_id = ?";
